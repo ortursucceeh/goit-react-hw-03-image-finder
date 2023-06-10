@@ -1,5 +1,4 @@
 import { Component } from 'react';
-// import PropTypes from 'prop-types';
 import css from './Searchbar.module.css';
 
 class Searchbar extends Component {
@@ -20,11 +19,7 @@ class Searchbar extends Component {
     return (
       <header className={css['Searchbar']}>
         <form className={css['SearchForm']} onSubmit={this.handleSubmit}>
-          <button
-            type="submit"
-            className={css['SearchForm-button']}
-            onSubmit={this.props.onSubmit}
-          >
+          <button type="submit" className={css['SearchForm-button']}>
             <span className={css['SearchForm-button-label']}>Search</span>
           </button>
 
@@ -42,7 +37,5 @@ class Searchbar extends Component {
     );
   }
 }
-
-Searchbar.propTypes = {};
 
 export default Searchbar;

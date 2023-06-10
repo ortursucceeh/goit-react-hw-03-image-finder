@@ -13,12 +13,10 @@ export class App extends Component {
   }
 
   render() {
-    const { searchText} = this.state;
-
     return (
       <div className={css['App']}>
         <Searchbar onSubmit={this.handleSubmitButton} handleSearch={this.handleSearch} />
-        <ImageGallery searchText={searchText} />
+        <ImageGallery searchText={this.state.searchText} />
       </div>
     );
   }
