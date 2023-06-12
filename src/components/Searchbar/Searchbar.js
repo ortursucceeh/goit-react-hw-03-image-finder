@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import propTypes from 'prop-types';
 import css from './Searchbar.module.css';
 
 class Searchbar extends Component {
@@ -37,5 +38,9 @@ class Searchbar extends Component {
     );
   }
 }
+
+Searchbar.propTypes = {
+  handleSearch: propTypes.func.isRequired,
+};
 
 export default Searchbar;
