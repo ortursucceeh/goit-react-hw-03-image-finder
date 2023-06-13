@@ -1,9 +1,9 @@
 import css from './Button.module.css';
 import PropTypes from 'prop-types';
 
-const Button = ({ loadMore, page }) => {
+const Button = ({ loadMore }) => {
   return (
-    <button className={css['Button']} onClick={() => loadMore(page)}>
+    <button className={css['Button']} onClick={loadMore}>
       Load more
     </button>
   );
@@ -11,7 +11,6 @@ const Button = ({ loadMore, page }) => {
 
 Button.propTypes = {
   loadMore: PropTypes.func,
-  page: PropTypes.number.isRequired,
 };
 
 export default Button;

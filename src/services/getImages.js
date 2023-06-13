@@ -3,6 +3,7 @@ const BASE_URL = `https://pixabay.com/api`;
 const IMG_PER_PAGE = 12;
 
 export const getImages = (searchText, page) => {
+  console.log(`${BASE_URL}/?q=${searchText}&page=${page}`);
   return fetch(
     `${BASE_URL}/?q=${searchText}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=${IMG_PER_PAGE}`
   );

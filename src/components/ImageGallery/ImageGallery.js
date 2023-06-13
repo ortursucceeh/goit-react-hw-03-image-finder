@@ -28,11 +28,14 @@ class ImageGallery extends Component {
   };
 
   loadImages = loadType => {
+    const searchPage = loadType === LOAD_TYPE.NEW ? 1 : this.state.page;
+
     this.setState(prevState => ({
       isLoading: true,
       images: loadType === LOAD_TYPE.NEW ? [] : prevState.images,
     }));
-    getImages(this.props.searchText, this.state.page)
+
+    getImages(this.props.searchText, searchPage)
       .then(response => response.json())
       .then(data =>
         this.setState(prevState => ({
@@ -49,10 +52,9 @@ class ImageGallery extends Component {
   componentDidUpdate(prevProps, prevState) {
     const prevSearchText = prevProps.searchText;
     const currentSearchText = this.props.searchText;
-
-    if (prevState.page < this.state.page && prevSearchText === currentSearchText)
+    if (prevState.page < this.state.page && prevSearchText === currentSearchText) {
       this.loadImages(LOAD_TYPE.LOAD_MORE);
-    else if (prevSearchText !== currentSearchText) {
+    } else if (prevSearchText !== currentSearchText) {
       this.loadImages(LOAD_TYPE.NEW);
     }
   }
@@ -64,24 +66,26 @@ class ImageGallery extends Component {
   };
 
   render() {
-    const { images, isLoading, page, modalImageURL } = this.state;
+    const { images, isLoading, modalImageURL } = this.state;
 
     return (
       <>
         {images.length > 0 && (
-          <ul className={css['ImageGallery']}>
-            {images.map(itemImage => (
-              <ImageGalleryItem
-                key={itemImage.id}
-                webformatURL={itemImage.webformatURL}
-                largeImageURL={itemImage.largeImageURL}
-                openModal={this.openModal}
-              />
-            ))}
-          </ul>
+          <>
+            <ul className={css['ImageGallery']}>
+              {images.map(itemImage => (
+                <ImageGalleryItem
+                  key={itemImage.id}
+                  webformatURL={itemImage.webformatURL}
+                  largeImageURL={itemImage.largeImageURL}
+                  openModal={this.openModal}
+                />
+              ))}
+            </ul>
+            {!isLoading && <Button loadMore={this.loadMore} />}
+          </>
         )}
         {isLoading && <Loader />}
-        {images.length > 0 && <Button loadMore={this.loadMore} page={page} />}
         {modalImageURL && <Modal largeImageURL={modalImageURL} closeModal={this.closeModal} />}
       </>
     );
