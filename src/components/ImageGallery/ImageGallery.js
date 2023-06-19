@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getImages } from 'services/getImages';
 import css from './ImageGallery.module.css';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
@@ -11,85 +11,77 @@ const LOAD_TYPE = {
   LOAD_MORE: 'loadMore',
 };
 
-class ImageGallery extends Component {
-  state = {
-    images: [],
-    page: 1,
-    isLoading: false,
-    modalImageURL: '',
+const ImageGallery = ({ searchText }) => {
+  const [images, setImages] = useState('');
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [modalImageURL, setModalImageURL] = useState('');
+
+  const prevSearchText = useRef(searchText);
+  const prevPage = useRef(page);
+
+  const openModal = ({ target }) => {
+    setModalImageURL(target.dataset.largeimgurl);
   };
 
-  openModal = ({ target }) => {
-    this.setState({ modalImageURL: target.dataset.largeimgurl });
+  const closeModal = () => setModalImageURL('');
+
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  closeModal = () => {
-    this.setState({ modalImageURL: '' });
-  };
+  useEffect(() => {
+    const loadImages = loadType => {
+      const searchPage = loadType === LOAD_TYPE.NEW ? 1 : page;
 
-  loadImages = loadType => {
-    const searchPage = loadType === LOAD_TYPE.NEW ? 1 : this.state.page;
+      setImages(prevImages => (loadType === LOAD_TYPE.NEW ? [] : prevImages));
+      setIsLoading(true);
 
-    this.setState(prevState => ({
-      isLoading: true,
-      images: loadType === LOAD_TYPE.NEW ? [] : prevState.images,
-    }));
+      getImages(searchText, searchPage)
+        .then(response => response.json())
+        .then(data => {
+          setImages(prevImages =>
+            loadType === LOAD_TYPE.NEW ? [...data.hits] : [...prevImages, ...data.hits]
+          );
+          setPage(prevPage => (loadType === LOAD_TYPE.NEW ? 1 : prevPage));
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
 
-    getImages(this.props.searchText, searchPage)
-      .then(response => response.json())
-      .then(data =>
-        this.setState(prevState => ({
-          images: loadType === LOAD_TYPE.NEW ? [...data.hits] : [...prevState.images, ...data.hits],
-          page: loadType === LOAD_TYPE.NEW ? 1 : prevState.page,
-          isLoading: false,
-        }))
-      )
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    const prevSearchText = prevProps.searchText;
-    const currentSearchText = this.props.searchText;
-    if (prevState.page < this.state.page && prevSearchText === currentSearchText) {
-      this.loadImages(LOAD_TYPE.LOAD_MORE);
-    } else if (prevSearchText !== currentSearchText) {
-      this.loadImages(LOAD_TYPE.NEW);
+    if (prevPage.current < page && prevSearchText.current === searchText) {
+      loadImages(LOAD_TYPE.LOAD_MORE);
+    } else if (prevSearchText.current !== searchText) {
+      loadImages(LOAD_TYPE.NEW);
     }
-  }
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
-  };
+    prevPage.current = page;
+    prevSearchText.current = searchText;
+  }, [searchText, page]);
 
-  render() {
-    const { images, isLoading, modalImageURL } = this.state;
-
-    return (
-      <>
-        {images.length > 0 && (
-          <>
-            <ul className={css['ImageGallery']}>
-              {images.map(itemImage => (
-                <ImageGalleryItem
-                  key={itemImage.id}
-                  webformatURL={itemImage.webformatURL}
-                  largeImageURL={itemImage.largeImageURL}
-                  openModal={this.openModal}
-                />
-              ))}
-            </ul>
-            {!isLoading && <Button loadMore={this.loadMore} />}
-          </>
-        )}
-        {isLoading && <Loader />}
-        {modalImageURL && <Modal largeImageURL={modalImageURL} closeModal={this.closeModal} />}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      {images.length > 0 && (
+        <>
+          <ul className={css.gallery}>
+            {images.map(itemImage => (
+              <ImageGalleryItem
+                key={itemImage.id}
+                webformatURL={itemImage.webformatURL}
+                largeImageURL={itemImage.largeImageURL}
+                openModal={openModal}
+              />
+            ))}
+          </ul>
+          {!isLoading && <Button loadMore={loadMore} />}
+        </>
+      )}
+      {isLoading && <Loader />}
+      {modalImageURL && <Modal largeImageURL={modalImageURL} closeModal={closeModal} />}
+    </>
+  );
+};
 
 export default ImageGallery;

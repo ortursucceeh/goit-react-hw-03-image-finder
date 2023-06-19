@@ -3,9 +3,9 @@ import propTypes from 'prop-types';
 
 const ImageGalleryItem = ({ webformatURL, largeImageURL, openModal }) => {
   return (
-    <li className={css['ImageGalleryItem']}>
+    <li className={css.item}>
       <img
-        className={css['ImageGalleryItem-image']}
+        className={css.itemImage}
         src={webformatURL}
         alt={webformatURL}
         data-largeimgurl={largeImageURL}
